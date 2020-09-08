@@ -1,6 +1,7 @@
 import pygame
 import os
 import random
+import Classes
 
 pygame.init()
 
@@ -16,106 +17,23 @@ window = pygame.display.set_mode(screenSize)
 clock = pygame.time.Clock()
 pygame.display.set_caption("Counter's Planet Defender")
 
-# Image Variables
-backgroundImage = pygame.image.load( os.path.join( "sprites", "canvas_background.png" ) )
-
-# Classes
-class Bullet( object ):
-    def __init__( self, x, y, radius, color ):
-        self.x = x
-        self.y = y
-        self.speed = 20
-        self.radius = radius
-        self.color = color
-        self.hitbox = ( self.x, self.y, self.radius )
-        self.die = False
-    
-    def draw(self):
-        self.move()
-        self.hitbox = ( self.x, self.y, self.radius )
-        pygame.draw.circle( window, self.color, ( self.x, self.y ), self.radius )
-    
-    def move(self):
-        if self.y >= 0 - self.radius:
-            self.y -= self.speed
-        else:
-            self.die = True
-
-class Player( object ):
-    def __init__( self, x, y, width, height ):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.speed = 12
-        self.hitbox = ( self.x, self.y, self.width, self.height )
-        self.hp = 100
-        self.ammo = 20
-        self.xdir = 0
-        self.ydir = 0
-
-    def draw(self):
-        self.move()
-        self.hitbox = ( self.x, self.y, self.width, self.height )
-        pygame.draw.rect( window, ( 0,255,0 ), ( self.x, self.y, self.width, self.height ) )
-
-    def move(self):
-        if self.xdir > 0: # right
-            self.x += self.speed
-        elif self.xdir < 0: # left
-            self.x -= self.speed
-        if self.ydir > 0: # down
-            self.y += self.speed
-        elif self.ydir < 0: # up
-            self.y -= self.speed
-    
-    def shoot(self):
-        #if self.ammo > 0:
-            #self.ammo -= 1
-        bullets.append( Bullet( round(self.x + ( self.width / 2 )), self.y, 5, ( 255,255,255 ) ) )
-    
-    def hit(self):
-        print("I've been hit by an enemy!")
-
-class Enemy(object):
-    def __init__( self, x, y, width, height ):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.speed = 10
-        self.hitbox = ( self.x, self.y, self.width, self.height )
-        self.canDamage = True
-        self.die = False
-
-    def draw(self):
-        self.move()
-        self.hitbox = ( self.x, self.y, self.width, self.height )
-        pygame.draw.rect( window, ( 255,0,0 ), ( self.x, self.y, self.width, self.height ) )
-
-    def move(self):
-        if self.y < screenSize[1] + self.height:
-            self.y += self.speed
-        else:
-            self.die = True
-
 # Functions
 def DrawWindow():
     window.fill( (0,0,0) )
-    player.draw()
+    player.draw(window)
     for enemy in enemies:
-        enemy.draw()
+        enemy.draw((window, screenSize))
     for bullet in bullets:
-        bullet.draw()
+        bullet.draw((window, screenSize))
 
     pygame.display.update()
 def SpawnEnemy():
-    enemy = Enemy( 0,0, 40, 60 )
+    enemy = Classes.Enemy( 0,0, 40, 60 )
     enemy.x = random.randint( 0, screenSize[1] - enemy.width )
     enemy.y = 0 - enemy.height
     enemies.append( enemy )
 
-player = Player( round(screenSize[0] / 2), 420, 40, 60 )
+player = Classes.Player( round(screenSize[0] / 2), 420, 40, 60 )
 enemies = []
 bullets = []
 
@@ -177,7 +95,7 @@ while running:
     
     if keys[pygame.K_SPACE] and canShoot == True:
         canShoot = False
-        player.shoot()
+        player.shoot(bullets)
 
     # Drawing Handler
     DrawWindow()
